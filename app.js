@@ -11,12 +11,13 @@
 
 // ---- Firebase config: fill in with your own project's config ----
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyCZ4d-w15dWIkckcZr5WX-1v2FrkVANUXg",
+  authDomain: "workaut-563ef.firebaseapp.com",
+  projectId: "workaut-563ef",
+  storageBucket: "workaut-563ef.firebasestorage.app",
+  messagingSenderId: "905730827262",
+  appId: "1:905730827262:web:a434efff8824c2f30856af",
+  measurementId: "G-ENKB8LK77L"
 };
 const ADMIN_EMAIL = "theworkautapp@gmail.com";
 
