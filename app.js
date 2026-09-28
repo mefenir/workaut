@@ -1038,7 +1038,8 @@ function renderDayDetail(){
     card.onclick = () => card.classList.toggle('open');
     wrap.appendChild(card);
     const inner = card.querySelector('.lc-expand-inner');
-    entry.exercises.forEach(ex => {
+    const doneExercises = (entry.exercises||[]).filter(ex => ex.done);
+    doneExercises.forEach(ex => {
       const setsText = (ex.sets||[]).map(s => (s.weight||'—')+'kg × '+(s.reps||'—')).join(', ');
       const row = document.createElement('div');
       row.className = 'lc-exercise';
@@ -1051,6 +1052,12 @@ function renderDayDetail(){
         inner.appendChild(noteRow);
       }
     });
+    if(doneExercises.length === 0){
+      const noneRow = document.createElement('div');
+      noneRow.className = 'lc-note';
+      noneRow.textContent = 'No exercises were checked off.';
+      inner.appendChild(noneRow);
+    }
     const restBtn = document.createElement('button');
     restBtn.className = 'rest-btn';
     restBtn.disabled = true;
