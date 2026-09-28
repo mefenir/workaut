@@ -424,14 +424,19 @@ button,input,textarea{font-family:inherit;}
   line-height:0.9; letter-spacing:-0.02em; margin-top:39px;
   word-break:normal; overflow-wrap:normal; white-space:normal;
 }
+/* Interest pills: auto-width (padding-driven, not a fixed grid column), so a
+   short word like "Travel" and a long one like "Technology" get different
+   box widths — measured from the reference: pill height 45px@430w, 25.5px
+   horizontal padding each side, ~7px gap both directions, wraps to new rows. */
 .pv-interests{
-  display:grid; grid-template-columns:1fr 1fr; gap:6px 22px; margin-top:31px;
+  display:flex; flex-wrap:wrap; gap:7px; margin-top:31px;
 }
 .pill-outline{
-  border:1.5px solid var(--ink); border-radius:999px; padding:14px 10px;
+  border:1.5px solid var(--ink); border-radius:999px; padding:11px 25.5px;
+  height:45px; box-sizing:border-box; display:inline-flex; align-items:center;
   font-size:27px; font-weight:400; color:var(--ink); text-align:center;
   font-family:"Radio Canada", sans-serif;
-  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  white-space:nowrap; flex:0 0 auto;
 }
 .profile-meta-hidden{display:none;}
 .profile-actions{display:flex; gap:7px; margin-top:31px;}
