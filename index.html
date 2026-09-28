@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#F2EDE4">
+<title>Workaut</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="manifest" href="manifest.json">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@500;600;700;800&display=swap">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div id="app-root">
+
+  <!-- LOADING -->
+  <div class="screen active" id="screen-loading">
+    <div class="content" style="justify-content:center; align-items:center; text-align:center; gap:18px; flex:1;">
+      <div class="logo-mark">🐕</div>
+      <div class="brand">Workaut</div>
+      <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- AUTH -->
+  <div class="screen" id="screen-auth">
+    <div class="content" style="justify-content:center; gap:22px; flex:1;">
+      <div style="text-align:center;">
+        <div class="logo-mark" style="margin:0 auto 14px;">🐕</div>
+        <div class="brand">Workaut</div>
+        <div class="tagline">A little push to get moving. No fitness-bro required.</div>
+      </div>
+      <div id="authError" class="auth-error"></div>
+      <div class="field-group">
+        <label class="field-label-sm">Email</label>
+        <input type="email" id="authEmail" class="text-input" placeholder="you@example.com" autocomplete="email">
+      </div>
+      <div class="field-group">
+        <label class="field-label-sm">Password</label>
+        <input type="password" id="authPassword" class="text-input" placeholder="At least 6 characters" autocomplete="current-password">
+      </div>
+      <div class="auth-actions">
+        <button class="btn primary" onclick="authLogin()">Log in</button>
+        <button class="btn outline" onclick="authSignup()">Create account</button>
+        <button class="btn dark" onclick="authGoogleSignIn()">Continue with Google</button>
+        <button class="link-btn" onclick="authReset()">Forgot your password?</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EMAIL VERIFY -->
+  <div class="screen" id="screen-verify">
+    <div class="content" style="justify-content:center; align-items:center; text-align:center; gap:16px; flex:1;">
+      <div class="logo-mark">✉️</div>
+      <h2 class="screen-heading">Verify your email</h2>
+      <div class="setup-copy">We sent a verification link to<br><strong id="verifyEmailAddr"></strong></div>
+      <div id="verifyError" class="auth-error" style="display:none;"></div>
+      <div class="auth-actions" style="width:100%;">
+        <button class="btn primary" onclick="checkVerified()">I've verified</button>
+        <button class="btn outline" onclick="resendVerification()">Resend email</button>
+        <button class="link-btn" onclick="authLogout()">Log out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- WAITING FOR APPROVAL -->
+  <div class="screen" id="screen-waiting">
+    <div class="content" style="justify-content:center; align-items:center; text-align:center; gap:16px; flex:1;">
+      <div class="logo-mark">⏳</div>
+      <h2 class="screen-heading">You're on the list</h2>
+      <div class="setup-copy">Workaut is in private beta. We'll let you in as soon as it's your turn — you don't need to do anything else.</div>
+      <div class="auth-actions" style="width:100%;">
+        <button class="btn outline" onclick="checkApprovalNow()">Check again</button>
+        <button class="link-btn" onclick="authLogout()">Log out</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROFILE SETUP -->
+  <div class="screen" id="screen-profile-1">
+    <div class="topbar">
+      <div style="width:36px"></div>
+      <div class="title">Profile</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content">
+      <div class="step-eyebrow">Let's set you up</div>
+      <div style="margin-top:10px;">
+        <input class="big-input" id="nameInput" placeholder="Your name" oninput="onNameInput()">
+      </div>
+      <div class="setup-copy">This is what we'll call you. Nothing formal — just a name.</div>
+      <div class="field-label" style="margin-top:8px;">What are you into?</div>
+      <div class="chip-grid" id="interestGrid">
+        <div class="chip" onclick="toggleChip(this)">Anime</div>
+        <div class="chip" onclick="toggleChip(this)">Movies</div>
+        <div class="chip" onclick="toggleChip(this)">Music</div>
+        <div class="chip" onclick="toggleChip(this)">Pop Culture</div>
+        <div class="chip" onclick="toggleChip(this)">TV Shows</div>
+        <div class="chip" onclick="toggleChip(this)">Cars</div>
+        <div class="chip" onclick="toggleChip(this)">Gaming</div>
+        <div class="chip" onclick="toggleChip(this)">Travel</div>
+        <div class="chip" onclick="toggleChip(this)">Reading</div>
+      </div>
+      <button class="btn primary" id="nameNextBtn" disabled onclick="finishSetup()" style="margin-top:auto;">Save</button>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen" id="screen-home">
+    <div class="topbar">
+      <div class="title">Workaut</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content" style="position:relative;">
+      <div class="greeting" id="homeGreeting">Hello, there</div>
+      <div class="home-day" onclick="go('calendar')">
+        <span id="homeDayNum">1</span>
+        <span class="month" id="homeMonth">January</span>
+      </div>
+      <div class="home-actions">
+        <button class="btn dark" onclick="go('gallery')">Workaut</button>
+        <button class="btn outline" onclick="go('profile-view')">Profile</button>
+        <button class="btn outline admin-entry" id="adminEntryBtn" style="display:none;" onclick="openAdminPanel()">🔧 Admin panel</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CALENDAR -->
+  <div class="screen" id="screen-calendar">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('home')">←</button>
+      <div class="title">Calendar</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content">
+      <div class="cal-hero">
+        <div class="cal-num" id="calNum">1</div>
+        <div class="cal-meta">
+          <div class="cal-month-row">
+            <button class="iconbtn ghost cal-arrow" onclick="shiftMonth(-1)">‹</button>
+            <div>
+              <div class="cal-month" id="calMonth">January</div>
+              <div class="cal-year" id="calYear">2026</div>
+            </div>
+            <button class="iconbtn ghost cal-arrow" onclick="shiftMonth(1)">›</button>
+          </div>
+        </div>
+      </div>
+      <div class="weekday-row"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+      <div class="dot-grid" id="calDotGrid"></div>
+      <div id="dayDetail"></div>
+    </div>
+  </div>
+
+  <!-- GALLERY -->
+  <div class="screen" id="screen-gallery">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('home')">←</button>
+      <div class="title">Workaut</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content">
+      <div class="gallery-grid" id="galleryGrid">
+        <div class="slot add" onclick="go('generate-shop')">+</div>
+      </div>
+      <div class="nav-hint">Tap + to generate a workout or shop exclusive packs.<br>Each one you get fills the next slot.</div>
+    </div>
+  </div>
+
+  <!-- GENERATE / SHOP CHOICE -->
+  <div class="screen" id="screen-generate-shop">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('gallery')">←</button>
+      <div class="title">Workaut</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content" style="justify-content:center; gap:16px;">
+      <div class="choice-card" onclick="go('generate-form')">
+        <div class="choice-emoji">🎲</div>
+        <div class="choice-title">Generate a workout</div>
+        <div class="choice-sub">Built for you, based on your level</div>
+      </div>
+      <div class="choice-card" onclick="go('specials-gallery')">
+        <div class="choice-emoji">⭐</div>
+        <div class="choice-title">Shop specials</div>
+        <div class="choice-sub">Exclusive packs from creators you follow</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GENERATE FORM -->
+  <div class="screen" id="screen-generate-form">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('generate-shop')">←</button>
+      <div class="title">Workaut · Generate</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content">
+      <div>
+        <div class="field-label">How many days per week?</div>
+        <div class="slider-row">
+          <input type="range" min="1" max="7" value="3" id="daysSlider" oninput="onDaysSliderInput()">
+          <div class="slider-val" id="daysVal">3</div>
+        </div>
+      </div>
+      <div>
+        <div class="field-label">What's your level?</div>
+        <div class="level-grid" id="levelGrid">
+          <button class="level-btn selected" data-level="rookie" onclick="selectLevel(this)">Rookie</button>
+          <button class="level-btn" data-level="normal" onclick="selectLevel(this)">Normal</button>
+          <button class="level-btn" data-level="advanced" onclick="selectLevel(this)">Expert</button>
+          <button class="level-btn" data-level="god" onclick="selectLevel(this)">God Mode</button>
+        </div>
+        <div class="small-note" id="levelHint"></div>
+      </div>
+      <div id="focusGroupField" style="display:none;">
+        <div class="field-label">Specialization focus</div>
+        <div class="chip-grid" id="focusChipGrid"></div>
+      </div>
+      <button class="btn primary" style="margin-top:auto;" onclick="startGenerate()">Generate</button>
+    </div>
+  </div>
+
+  <!-- OVERVIEW -->
+  <div class="screen" id="screen-overview">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('generate-form')">←</button>
+      <div class="title">Workaut · Overview</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content">
+      <div id="overviewList"></div>
+      <div style="margin-top:auto; display:flex; flex-direction:column; gap:10px;">
+        <button class="btn primary" onclick="confirmWorkout()">Confirm</button>
+        <button class="btn outline" onclick="toast('Edit exercises freely — no upgrade needed')">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SPECIALS GALLERY -->
+  <div class="screen" id="screen-specials-gallery">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('generate-shop')">←</button>
+      <div class="title">Workaut · Specials</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content">
+      <div class="ip-grid" id="specialsGrid"></div>
+    </div>
+  </div>
+
+  <!-- SPECIAL DETAIL -->
+  <div class="screen" id="screen-special-detail">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('specials-gallery')">←</button>
+      <div class="title">Workaut · Specials</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content" id="specialDetailContent"></div>
+  </div>
+
+  <!-- WORKOUT WALLET -->
+  <div class="screen" id="screen-workout-wallet">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('gallery')">←</button>
+      <div class="title" id="walletTitle">Workaut</div>
+      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+    </div>
+    <div class="content">
+      <div class="wallet-stack" id="walletStack"></div>
+    </div>
+  </div>
+
+  <!-- WORKOUT DETAIL (checklist) -->
+  <div class="screen" id="screen-workout-detail-picked">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="backToWallet()">←</button>
+      <div class="title" id="workoutDetailTitle">Workout</div>
+      <button class="iconbtn ghost" onclick="clearLiftAndGo('home')">⌂</button>
+    </div>
+    <div class="content" style="position:relative;">
+      <div id="checklistList"></div>
+      <button class="btn primary" style="margin-top:auto;" onclick="saveProgress()">Save progress</button>
+    </div>
+  </div>
+
+  <!-- PROFILE VIEW -->
+  <div class="screen" id="screen-profile-view">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('home')">←</button>
+      <div class="title">Profile</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content">
+      <div class="radar-wrap">
+        <svg id="radarSvg" width="280" height="280" viewBox="0 0 280 280"></svg>
+      </div>
+      <div class="profile-meta">
+        <div class="meta-row"><span class="meta-label">Name</span><span class="meta-val" id="pvName">—</span></div>
+        <div class="meta-row"><span class="meta-label">Member since</span><span class="meta-val" id="pvMemberSince">—</span></div>
+        <div class="meta-row"><span class="meta-label">Interests</span><span class="meta-val" id="pvInterests">—</span></div>
+        <div class="meta-row"><span class="meta-label">Workaut collection</span><span class="meta-val" id="pvPacks">0</span></div>
+      </div>
+      <div class="profile-actions">
+        <button class="btn outline" onclick="openEditProfile()">Edit</button>
+        <button class="btn danger" onclick="openDeleteModal()">Delete</button>
+      </div>
+      <button class="link-btn" style="margin-top:6px;" onclick="authLogout()">Log out</button>
+    </div>
+  </div>
+
+  <!-- EDIT PROFILE -->
+  <div class="screen" id="screen-edit-profile">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('profile-view')">←</button>
+      <div class="title">Edit profile</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content">
+      <div style="margin-top:12px;">
+        <input class="big-input" id="editNameInput" placeholder="Your name">
+      </div>
+      <div class="setup-copy">Update your name and interests any time.</div>
+      <div class="chip-grid" id="editInterestGrid">
+        <div class="chip" onclick="toggleChip(this)">Anime</div>
+        <div class="chip" onclick="toggleChip(this)">Movies</div>
+        <div class="chip" onclick="toggleChip(this)">Music</div>
+        <div class="chip" onclick="toggleChip(this)">Pop Culture</div>
+        <div class="chip" onclick="toggleChip(this)">TV Shows</div>
+        <div class="chip" onclick="toggleChip(this)">Cars</div>
+        <div class="chip" onclick="toggleChip(this)">Gaming</div>
+        <div class="chip" onclick="toggleChip(this)">Travel</div>
+        <div class="chip" onclick="toggleChip(this)">Reading</div>
+      </div>
+      <button class="btn primary" style="margin-top:auto;" onclick="saveEditProfile()">Save</button>
+    </div>
+  </div>
+
+  <!-- ADMIN PANEL -->
+  <div class="screen" id="screen-admin">
+    <div class="topbar">
+      <button class="iconbtn ghost" onclick="go('home')">←</button>
+      <div class="title">Admin</div>
+      <div style="width:36px"></div>
+    </div>
+    <div class="content" id="adminContent"></div>
+  </div>
+
+  <!-- DELETE MODAL -->
+  <div class="modal-overlay" id="deleteModal">
+    <div class="sheet">
+      <div class="sheet-handle"></div>
+      <h3>Delete this profile?</h3>
+      <p>This deletes your account completely. There's no way to recover it once it's gone.</p>
+      <button class="btn danger" onclick="confirmDelete()">Yes, delete</button>
+      <button class="btn outline" onclick="closeDeleteModal()">Cancel</button>
+    </div>
+  </div>
+
+  <!-- ADMIN IMPERSONATION BADGE -->
+  <div class="admin-badge" id="adminBadge">
+    <span id="adminBadgeText"></span>
+    <button class="btn small dark" onclick="adminStopImpersonating()">Exit</button>
+  </div>
+
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

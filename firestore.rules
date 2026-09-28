@@ -1,0 +1,32 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == "theworkautapp@gmail.com";
+    }
+
+    // Each user's app state (profile, packs, calendar). Owner can read/write
+    // their own document; the admin account can read/write any document,
+    // which is what powers "enter account" impersonation in the admin panel.
+    match /users/{uid} {
+      allow read, write: if request.auth != null
+        && (request.auth.uid == uid || isAdmin());
+    }
+
+    // Beta approval gate. A signed-in user may create their own approval
+    // request (always starting as approved:false — they cannot self-approve)
+    // and read their own status. Only the admin can approve/revoke or list
+    // every pending request.
+    match /approvals/{uid} {
+      allow read: if request.auth != null
+        && (request.auth.uid == uid || isAdmin());
+      allow create: if request.auth != null
+        && request.auth.uid == uid
+        && request.resource.data.approved == false;
+      allow update: if isAdmin();
+      allow list: if isAdmin();
+    }
+  }
+}
