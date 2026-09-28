@@ -10,9 +10,16 @@ service cloud.firestore {
     // Each user's app state (profile, packs, calendar). Owner can read/write
     // their own document; the admin account can read/write any document,
     // which is what powers "enter account" impersonation in the admin panel.
+    // Size-capped at 1MB (Firestore's own per-document ceiling is ~1MiB, so
+    // this just fails the write cleanly instead of relying on that hard
+    // limit) to stop a single authenticated account from ballooning one
+    // document and eating into the project's quota/cost.
     match /users/{uid} {
-      allow read, write: if request.auth != null
+      allow read: if request.auth != null
         && (request.auth.uid == uid || isAdmin());
+      allow write: if request.auth != null
+        && (request.auth.uid == uid || isAdmin())
+        && request.resource.size() < 1 * 1024 * 1024;
     }
 
     // Beta approval gate. A signed-in user may create their own approval

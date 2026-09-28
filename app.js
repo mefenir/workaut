@@ -1189,24 +1189,101 @@ function translateAuthError(e){
     'auth/missing-password': 'Enter a password.',
     'auth/popup-closed-by-user': 'Google window closed before finishing.',
     'auth/popup-blocked': 'Your browser blocked the Google window. Allow pop-ups and try again.',
-    'auth/account-exists-with-different-credential': 'This email is already registered with a password. Log in with email/password.'
+    'auth/account-exists-with-different-credential': 'This email is already registered with a password. Log in with email/password.',
+    'auth/too-many-requests': 'Too many failed attempts. Access to this account has been temporarily disabled — try again in a few minutes, or reset your password.'
   };
   return map[code] || 'Something went wrong. Please try again.';
 }
+
+// ---- Login throttling (client-side, on top of Firebase's own server-side
+// rate limiting) ----------------------------------------------------------
+// Firebase Auth already blocks an account after repeated failed
+// signInWithEmailAndPassword calls (auth/too-many-requests), enforced
+// server-side and outside the browser's control — that's the real
+// protection. This adds a local, per-device escalating delay so a script
+// hammering the login button from this browser also slows down immediately,
+// without waiting on a network round trip each time.
+const LOGIN_THROTTLE_KEY = 'workaut_login_attempts';
+function getLoginAttempts(){
+  try { return JSON.parse(localStorage.getItem(LOGIN_THROTTLE_KEY)) || { count:0, until:0 }; }
+  catch(e){ return { count:0, until:0 }; }
+}
+function setLoginAttempts(v){
+  try { localStorage.setItem(LOGIN_THROTTLE_KEY, JSON.stringify(v)); } catch(e){}
+}
+function registerFailedLogin(){
+  const a = getLoginAttempts();
+  a.count = (a.count||0) + 1;
+  // Escalating cooldown: 0-2 fails = none, then 2s, 4s, 8s... capped at 60s.
+  const waitSec = a.count <= 2 ? 0 : Math.min(60, Math.pow(2, a.count - 2));
+  a.until = Date.now() + waitSec*1000;
+  setLoginAttempts(a);
+}
+function clearLoginAttempts(){ setLoginAttempts({ count:0, until:0 }); }
+function loginThrottleRemaining(){
+  const a = getLoginAttempts();
+  return Math.max(0, Math.ceil((a.until - Date.now())/1000));
+}
+
 function authLogin(){
   const {email, pass} = authFieldValues();
   hideAuthError();
+  const wait = loginThrottleRemaining();
+  if(wait > 0){
+    showAuthError(`Too many attempts. Please wait ${wait}s and try again.`);
+    return;
+  }
   if(!email || !pass){ showAuthError('Enter your email and password.'); return; }
-  fb.auth.signInWithEmailAndPassword(email, pass).catch(e => showAuthError(translateAuthError(e)));
+  fb.auth.signInWithEmailAndPassword(email, pass)
+    .then(() => clearLoginAttempts())
+    .catch(e => {
+      registerFailedLogin();
+      showAuthError(translateAuthError(e));
+    });
 }
+
+// ---- Leaked-password check (HaveIBeenPwned, k-anonymity model) ----------
+// Only the first 5 chars of the SHA-1 hash of the password ever leave the
+// device — the real password, and its full hash, never do. HIBP returns
+// every suffix that shares that prefix along with a breach count; we just
+// check whether our suffix is in that list. If the check can't complete
+// (offline, API down, blocked), signup proceeds rather than blocking users
+// on a third-party outage — Firebase's own leaked-password protection
+// (enabled in the console) is the non-optional backstop.
+async function sha1Hex(str){
+  const enc = new TextEncoder().encode(str);
+  const buf = await crypto.subtle.digest('SHA-1', enc);
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('').toUpperCase();
+}
+async function isPasswordLeaked(password){
+  try {
+    const hash = await sha1Hex(password);
+    const prefix = hash.slice(0,5), suffix = hash.slice(5);
+    const res = await fetch('https://api.pwnedpasswords.com/range/' + prefix);
+    if(!res.ok) return false;
+    const text = await res.text();
+    return text.split('\n').some(line => line.split(':')[0].trim() === suffix);
+  } catch(e){
+    return false; // fail open — don't block signup on a third-party outage
+  }
+}
+
 function authSignup(){
   const {email, pass} = authFieldValues();
   hideAuthError();
   if(!email || !pass){ showAuthError('Enter your email and password.'); return; }
-  if(pass.length < 6){ showAuthError('Password must be at least 6 characters.'); return; }
-  fb.auth.createUserWithEmailAndPassword(email, pass)
-    .then(cred => cred.user.sendEmailVerification().catch(()=>{}))
-    .catch(e => showAuthError(translateAuthError(e)));
+  if(pass.length < 8){ showAuthError('Password must be at least 8 characters.'); return; }
+  showAuthError('Checking password…', true);
+  isPasswordLeaked(pass).then(leaked => {
+    if(leaked){
+      showAuthError('This password has appeared in a known data breach. Please choose a different one.');
+      return;
+    }
+    hideAuthError();
+    fb.auth.createUserWithEmailAndPassword(email, pass)
+      .then(cred => cred.user.sendEmailVerification().catch(()=>{}))
+      .catch(e => showAuthError(translateAuthError(e)));
+  });
 }
 function authGoogleSignIn(){
   hideAuthError();
