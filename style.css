@@ -88,6 +88,8 @@ button,input,textarea{font-family:inherit;}
 }
 .iconbtn:active{transform:scale(0.9); background:var(--line);}
 .iconbtn.ghost{background:transparent; box-shadow:none;}
+.icon-arrow{width:20px; height:auto; color:var(--ink); flex-shrink:0;}
+.iconbtn.dark-icon .icon-arrow{color:var(--ink);}
 
 .content{
   flex:1; padding:0 22px calc(28px + env(safe-area-inset-bottom, 0px));
@@ -173,42 +175,45 @@ button,input,textarea{font-family:inherit;}
 .chip:active{transform:scale(0.94);}
 .chip.selected{background:var(--ink); color:var(--bg); border-color:var(--ink);}
 
-/* Home */
+/* Home — measurements pixel-matched to the reference design (1180x2556
+   source), converted to proportional units so they hold at any viewport
+   width: margins 12px@430w, card radius 30px@430w, inter-card gap 7px@932h,
+   card top offset 153px@932h, card height 218px@932h. */
 .home-screen{background:var(--purple);}
 .home-topbar{
   display:flex; align-items:flex-start; justify-content:space-between;
-  padding:24px 24px 10px; flex-shrink:0;
+  padding:33px 27px 0; flex-shrink:0;
 }
 .home-greeting{
-  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:26px;
-  letter-spacing:0.01em; color:var(--bg); padding-top:8px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:25px;
+  letter-spacing:0.01em; color:var(--bg); padding-top:6px;
 }
-.home-mascot{width:78px; height:auto; flex-shrink:0;}
+.home-mascot{width:48px; height:auto; flex-shrink:0;}
 .home-cards{
-  flex:1; display:flex; flex-direction:column; gap:16px;
-  padding:14px 22px calc(28px + env(safe-area-inset-bottom, 0px));
+  flex:1; display:flex; flex-direction:column; gap:7px;
+  padding:22px 12px calc(40px + env(safe-area-inset-bottom, 0px));
 }
 .home-card{
-  border-radius:32px; cursor:pointer; transition:transform .15s ease;
+  border-radius:30px; cursor:pointer; transition:transform .15s ease;
   display:flex; flex-direction:column; align-items:center; justify-content:center;
-  text-align:center; padding:20px;
+  text-align:center; padding:20px; flex:1;
 }
 .home-card:active{transform:scale(0.97);}
 .date-card{
-  background:var(--bg); color:var(--ink); flex:1.1; gap:4px;
+  background:var(--bg); color:var(--ink); gap:2px;
 }
 .date-card-num{
-  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:90px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:88px;
   line-height:0.85; letter-spacing:-0.02em;
 }
 .date-card-label{
-  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:18px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:17px;
   letter-spacing:0.04em;
 }
-.workaut-card{background:var(--accent); color:var(--ink); flex:1;}
-.profile-card{background:var(--lime); color:var(--lime-ink); flex:1;}
+.workaut-card{background:var(--accent); color:var(--ink);}
+.profile-card{background:var(--lime); color:var(--lime-ink);}
 .workaut-card span, .profile-card span{
-  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:22px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:21px;
   letter-spacing:0.04em;
 }
 
@@ -397,24 +402,40 @@ button,input,textarea{font-family:inherit;}
 .special-title{font-family:"Radio Canada", sans-serif; font-size:20px; font-weight:700;}
 .special-desc{color:var(--ink-soft); font-size:13px; max-width:280px; line-height:1.5;}
 
-/* Profile view */
-.muscle-chip-col{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-top:6px;}
+/* Profile view — measurements pixel-matched to the reference design (1180x2556
+   source), converted to px@430w via value/1180*430: muscle bars height 42px,
+   inter-bar gap 3px, bar text inset 11px, bar text 23px; name display font
+   97px with 12px line-gap and 39px top margin off the chips; interest pills
+   2-per-row grid with 27px text, 22px column gap, 6px row gap, 31px top
+   margin; back arrow 35x32px at 28px left inset; PROFILE title 25px. */
+.profile-view .topbar{padding-left:26px; padding-right:26px;}
+.profile-view .icon-arrow{width:35px;}
+.profile-view .content{padding-left:26px; padding-right:26px;}
+.muscle-chip-col{display:flex; flex-direction:column; align-items:flex-start; gap:3px; margin-top:2px;}
 .muscle-chip{
-  background:var(--lime); color:var(--lime-ink); border-radius:14px;
-  padding:14px 18px; font-weight:700; font-size:17px; min-width:80px;
+  background:var(--lime); color:var(--lime-ink); border-radius:10px;
+  padding:0 0 0 11px; font-weight:700; font-size:23px; min-width:70px;
+  height:42px; display:flex; align-items:center;
+  font-family:"Radio Canada", sans-serif; letter-spacing:-0.01em;
   transition:width .3s ease;
 }
 .pv-name{
-  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:52px;
-  line-height:1.02; letter-spacing:-0.01em; margin-top:14px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:clamp(56px, 22.6vw, 97px);
+  line-height:0.9; letter-spacing:-0.02em; margin-top:39px;
+  word-break:normal; overflow-wrap:normal; white-space:normal;
 }
-.pv-interests{display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;}
+.pv-interests{
+  display:grid; grid-template-columns:1fr 1fr; gap:6px 22px; margin-top:31px;
+}
 .pill-outline{
-  border:1.5px solid var(--line); border-radius:999px; padding:10px 18px;
-  font-size:14px; font-weight:600; color:var(--ink);
+  border:1.5px solid var(--ink); border-radius:999px; padding:14px 10px;
+  font-size:27px; font-weight:400; color:var(--ink); text-align:center;
+  font-family:"Radio Canada", sans-serif;
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
 }
 .profile-meta-hidden{display:none;}
-.profile-actions{display:flex; gap:10px; margin-top:auto;}
+.profile-actions{display:flex; gap:7px; margin-top:31px;}
+.profile-actions .btn{height:58px; border-radius:18px;}
 .btn.muted{background:var(--level-unselected); color:#fff;}
 
 /* Admin */
