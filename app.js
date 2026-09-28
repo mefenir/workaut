@@ -409,15 +409,34 @@ function escapeHtml(str){
 // Navigation
 // ============================================================================
 function go(id){
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   const target = document.getElementById('screen-'+id);
-  if(target){ target.classList.add('active'); target.scrollTop = 0; window.scrollTo(0,0); }
+  if(!target) return;
+  const current = document.querySelector('.screen.active');
+
+  document.querySelectorAll('.screen').forEach(s => {
+    s.classList.remove('active', 'screen-entering', 'screen-leaving');
+  });
+  target.classList.add('active', 'screen-entering');
+  target.scrollTop = 0; window.scrollTo(0,0);
+
   if(id === 'calendar'){ renderCalendar(); }
   if(id === 'home'){ loggingDateKey = null; renderHome(); }
   if(id === 'profile-view'){ renderProfileView(); }
   if(id === 'gallery'){ renderGallery(); }
   if(id === 'generate-form'){ onDaysSliderInput(); }
   if(id === 'specials-gallery'){ renderSpecialsGallery(); }
+
+  // Cross-fade: let the old screen linger, fading out, while the new one
+  // fades in over it — no hard cut, no layout jump (both share app-root's
+  // padding/max-width, and the leaving one is pinned absolute so the flow
+  // doesn't shift). Cleans itself up once the animation ends.
+  requestAnimationFrame(() => target.classList.remove('screen-entering'));
+  if(current && current !== target){
+    current.classList.add('screen-leaving');
+    current.addEventListener('animationend', () => {
+      current.classList.remove('active', 'screen-leaving');
+    }, { once:true });
+  }
 }
 
 function toast(msg){
@@ -534,13 +553,24 @@ function renderMuscleChips(){
   }).join('');
 }
 
+// Closes any .modal-overlay by mirroring its entrance: plays the reverse
+// slide-down/fade-out (.closing) for one animation length, then actually
+// hides it — instead of the sheet just vanishing on the spot.
+function closeModal(el){
+  if(!el || !el.classList.contains('active')) return;
+  el.classList.add('closing');
+  el.addEventListener('animationend', () => {
+    el.classList.remove('active', 'closing');
+  }, { once:true });
+}
+
 function openDeleteModal(){ document.getElementById('deleteModal').classList.add('active'); }
 function closeDeleteModal(){
-  document.getElementById('deleteModal').classList.remove('active');
+  closeModal(document.getElementById('deleteModal'));
   toast("Phew, that was close. Let's get moving.");
 }
 function confirmDelete(){
-  document.getElementById('deleteModal').classList.remove('active');
+  closeModal(document.getElementById('deleteModal'));
   if(fb && fbUser && !adminImpersonating){
     fb.db.collection('users').doc(fbUser.uid).delete().catch(()=>{});
     const user = fb.auth.currentUser;
@@ -697,7 +727,7 @@ function unlockSpecial(specialId){
   save();
   renderGallery();
   toast('Pack unlocked!');
-  setTimeout(() => go('gallery'), 500);
+  go('gallery');
 }
 function openWalletForSpecial(specialId){
   const pack = state.packs.find(p => p.specialId === specialId);

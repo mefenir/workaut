@@ -68,6 +68,22 @@ button,input,textarea{font-family:inherit;}
   padding-top:env(safe-area-inset-top, 0px);
 }
 .screen.active{display:flex;}
+/* Cross-fade between screens instead of an instant hard cut. Purely a
+   navigation-timing change — no screen's own layout, spacing or sizing is
+   touched. While transitioning, the outgoing screen is pinned in place
+   (absolute, same box) so the incoming one can fade in over it without a
+   layout jump; both are cleaned back to normal flow once the fade ends. */
+.screen.active.screen-entering{opacity:0; animation:screenFadeIn .16s ease forwards;}
+.screen.screen-leaving{
+  display:flex; position:absolute; inset:0; opacity:1;
+  animation:screenFadeOut .16s ease forwards; pointer-events:none;
+}
+@keyframes screenFadeIn{from{opacity:0;} to{opacity:1;}}
+@keyframes screenFadeOut{from{opacity:1;} to{opacity:0;}}
+@media (prefers-reduced-motion: reduce){
+  .screen.active.screen-entering{opacity:1; animation:none;}
+  .screen.screen-leaving{animation:none; opacity:0;}
+}
 
 .topbar{
   display:flex; align-items:center; justify-content:space-between;
@@ -464,11 +480,23 @@ button,input,textarea{font-family:inherit;}
 .admin-badge.show{display:flex;}
 .admin-badge span{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
 
-/* Modal */
+/* Modal — the sheet enters by sliding up (sheetup); closing now mirrors that
+   same path back down instead of vanishing instantly, so enter/exit are
+   symmetric. The overlay's own dim/backdrop cross-fades along with it via
+   .closing (added by JS for one animation-length before the modal is
+   actually hidden) so the scrim doesn't just cut out either. */
 .modal-overlay{position:fixed; inset:0; background:rgba(0,0,0,0.4); display:none; align-items:flex-end; justify-content:center; z-index:80;}
 .modal-overlay.active{display:flex;}
+.modal-overlay.closing{animation:overlayFadeOut .18s ease forwards;}
+.modal-overlay.closing .sheet{animation:sheetdown .18s ease forwards;}
 .sheet{width:100%; max-width:520px; background:var(--paper); border-radius:24px 24px 0 0; padding:26px 24px calc(26px + env(safe-area-inset-bottom, 0px)); display:flex; flex-direction:column; gap:14px; animation:sheetup .22s ease;}
 @keyframes sheetup{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
+@keyframes sheetdown{from{transform:translateY(0); opacity:1;} to{transform:translateY(30px); opacity:0;}}
+@keyframes overlayFadeOut{from{opacity:1;} to{opacity:0;}}
+@media (prefers-reduced-motion: reduce){
+  .sheet{animation:none;}
+  .modal-overlay.closing, .modal-overlay.closing .sheet{animation:none;}
+}
 .sheet-handle{width:36px; height:4px; border-radius:2px; background:var(--line); margin:0 auto 4px;}
 .sheet h3{font-family:"Radio Canada", sans-serif; font-size:18px;}
 .sheet p{color:var(--ink-soft); font-size:13px; line-height:1.5; margin:0;}
