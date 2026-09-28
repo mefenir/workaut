@@ -83,3 +83,4 @@ assets), descriptions and prices once partnerships are signed. Each pack's
 exercises for a pack's day are drawn live from the same curated library
 using `specialExercisesFor()`, so you don't have to hand-pick exercises for
 every partner pack.
+
