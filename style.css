@@ -446,7 +446,7 @@ button,input,textarea{font-family:inherit;}
    in the reference, so give them proportional flex-grow instead of flex:1 1 0
    each (which the shared .btn{width:100%} would otherwise produce evenly). */
 .profile-actions{display:flex; gap:7px; margin-top:85px;}
-.profile-actions .btn{height:57px; border-radius:18px; width:auto;}
+.profile-actions .btn{height:57px; border-radius:18px; width:auto; font-size:17px; letter-spacing:0.04em;}
 .profile-actions .btn.muted{flex:2.07 1 0;}
 .profile-actions .btn.dark{flex:1 1 0;}
 .btn.muted{background:var(--level-unselected); color:#fff;}
