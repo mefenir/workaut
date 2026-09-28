@@ -1,20 +1,34 @@
+@font-face{
+  font-family:"Radio Canada";
+  src:url("fonts/RadioCanada-Variable.ttf") format("truetype-variations"),
+      url("fonts/RadioCanada-Variable.ttf") format("truetype");
+  font-weight:300 700;
+  font-stretch:75% 125%;
+  font-style:normal;
+  font-display:swap;
+}
+
 :root{
-  --bg:#F2EDE4;
+  --bg:#FFF6EB;
   --ink:#1C1917;
   --ink-soft:#6B6459;
   --paper:#FFFFFF;
   --line:#E4DDCF;
-  --accent:#FF5A36;
+  --accent:#FD572A;
   --accent-ink:#FFFFFF;
   --dot-empty:#DCD5C6;
-  --purple:#7C6CF0;
+  --purple:#695AC6;
+  --lime:#D9FF03;
+  --lime-ink:#1C1917;
   --green:#3FA66B;
   --red:#D9483A;
-  --card-1:#FF5A36;
+  --card-1:#FD572A;
   --card-2:#2E2A26;
-  --card-3:#7C6CF0;
-  --card-4:#D8CBAE;
+  --card-3:#695AC6;
+  --card-4:#D9FF03;
   --card-4-ink:#1C1917;
+  --slot-filled:#C64122;
+  --level-unselected:#BFB2A5;
   --shadow: 0 10px 30px rgba(28,25,23,0.12);
   color-scheme: light;
 }
@@ -30,7 +44,7 @@
 html,body{height:100%; margin:0;}
 body{
   background:var(--bg);
-  font-family:"Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-family:"Radio Canada", "Manrope", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   color:var(--ink);
   overscroll-behavior-y:none;
 }
@@ -61,9 +75,11 @@ button,input,textarea{font-family:inherit;}
   flex-shrink:0;
 }
 .topbar .title{
-  font-family:"Space Grotesk", sans-serif; font-weight:700; font-size:13px;
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:13px;
   letter-spacing:0.08em; text-transform:uppercase; color:var(--ink-soft);
 }
+.topbar .title.title-lg{font-size:22px; letter-spacing:0.02em; color:var(--ink);}
+.topbar-mascot{width:56px; height:auto; flex-shrink:0;}
 .iconbtn{
   width:36px; height:36px; border-radius:50%; border:none;
   background:var(--paper); box-shadow:0 1px 0 var(--line) inset;
@@ -99,11 +115,30 @@ button,input,textarea{font-family:inherit;}
 
 /* Splash-style pieces reused on loading/auth */
 .logo-mark{width:80px; height:80px; border-radius:24px; background:var(--ink); display:flex; align-items:center; justify-content:center; font-size:36px;}
-.brand{font-family:"Space Grotesk", sans-serif; font-weight:700; font-size:30px; letter-spacing:-0.02em; text-align:center;}
+.brand{font-family:"Radio Canada", sans-serif; font-weight:700; font-size:30px; letter-spacing:-0.02em; text-align:center;}
 .tagline{color:var(--ink-soft); font-size:14px; max-width:280px; text-align:center; margin:8px auto 0;}
+.loading-mascot{width:120px; height:auto;}
 .spinner{width:28px; height:28px; border-radius:50%; border:3px solid var(--line); border-top-color:var(--accent); animation:spin 0.8s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
-.screen-heading{font-family:"Space Grotesk", sans-serif; font-size:20px;}
+.screen-heading{font-family:"Radio Canada", sans-serif; font-size:20px;}
+
+/* Post-login splash: wordmark logo, optional Enter/Admin choice for the
+   admin account */
+.post-login-content{justify-content:flex-start; padding-top:0; flex:1; position:relative;}
+.wordmark-wrap{
+  position:absolute; left:22px; right:22px; top:56%; transform:translateY(-50%);
+  display:flex; flex-direction:column; align-items:flex-end;
+}
+.wordmark-arc{width:100%; max-width:300px; overflow:visible; margin-right:12px;}
+.wordmark-arc text{font-family:"Radio Canada", sans-serif; font-weight:700; fill:var(--ink);}
+.post-login-mascot{width:150px; height:auto; margin-top:-6px;}
+.post-login-actions{
+  position:absolute; left:22px; right:22px; bottom:calc(70px + env(safe-area-inset-bottom, 0px));
+  display:flex; flex-direction:column; gap:10px;
+}
+.btn.lime{background:var(--lime); color:var(--lime-ink);}
+.btn.purple{background:var(--purple); color:#fff;}
+.btn.upper{text-transform:uppercase; letter-spacing:0.01em;}
 
 /* Auth form */
 .field-group{display:flex; flex-direction:column; gap:6px;}
@@ -122,10 +157,10 @@ button,input,textarea{font-family:inherit;}
 .auth-error.ok{background:rgba(63,166,107,0.12); color:var(--green);}
 
 /* Profile setup */
-.step-eyebrow{font-family:"Space Grotesk", sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); text-align:center;}
+.step-eyebrow{font-family:"Radio Canada", sans-serif; font-size:12px; letter-spacing:0.14em; text-transform:uppercase; color:var(--ink-soft); text-align:center;}
 .big-input{
   width:100%; border:none; border-bottom:2px solid var(--line); background:transparent;
-  font-family:"Space Grotesk", sans-serif; font-size:28px; font-weight:700; color:var(--ink);
+  font-family:"Radio Canada", sans-serif; font-size:28px; font-weight:700; color:var(--ink);
   padding:10px 2px; text-align:center; outline:none;
 }
 .big-input:focus{border-color:var(--accent);}
@@ -140,31 +175,54 @@ button,input,textarea{font-family:inherit;}
 .chip.selected{background:var(--ink); color:var(--bg); border-color:var(--ink);}
 
 /* Home */
-.greeting{font-family:"Space Grotesk", sans-serif; font-size:22px; font-weight:700; padding-top:8px;}
-.home-day{
-  align-self:center; width:180px; height:180px; border-radius:50%; background:var(--paper);
-  border:3px solid var(--ink); display:flex; align-items:center; justify-content:center;
-  font-family:"Space Grotesk", sans-serif; font-size:72px; font-weight:700; cursor:pointer;
-  position:relative; margin:16px 0 20px; transition:transform .15s ease;
+.home-screen{background:var(--purple);}
+.home-topbar{
+  display:flex; align-items:flex-start; justify-content:space-between;
+  padding:24px 24px 10px; flex-shrink:0;
 }
-.home-day:active{transform:scale(0.96);}
-.home-day .month{
-  position:absolute; bottom:-30px; font-size:12px; font-weight:700;
-  letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-soft);
+.home-greeting{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:26px;
+  letter-spacing:0.01em; color:var(--bg); padding-top:8px;
 }
-.home-actions{display:flex; flex-direction:column; gap:10px; margin-top:auto;}
-.admin-entry{border-color:var(--purple); color:var(--purple);}
+.home-mascot{width:78px; height:auto; flex-shrink:0;}
+.home-cards{
+  flex:1; display:flex; flex-direction:column; gap:16px;
+  padding:14px 22px calc(28px + env(safe-area-inset-bottom, 0px));
+}
+.home-card{
+  border-radius:32px; cursor:pointer; transition:transform .15s ease;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  text-align:center; padding:20px;
+}
+.home-card:active{transform:scale(0.97);}
+.date-card{
+  background:var(--bg); color:var(--ink); flex:1.1; gap:4px;
+}
+.date-card-num{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:90px;
+  line-height:0.85; letter-spacing:-0.02em;
+}
+.date-card-label{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:18px;
+  letter-spacing:0.04em;
+}
+.workaut-card{background:var(--accent); color:var(--ink); flex:1;}
+.profile-card{background:var(--lime); color:var(--lime-ink); flex:1;}
+.workaut-card span, .profile-card span{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:22px;
+  letter-spacing:0.04em;
+}
 
 .fire-burst{position:absolute; inset:0; pointer-events:none; z-index:60;}
 .fire-burst span{position:absolute; font-size:22px; opacity:0; transform:translate(0,0) scale(0.4); transition:transform .7s cubic-bezier(.2,.8,.3,1), opacity .7s ease;}
 
 /* Calendar */
 .cal-hero{display:flex; align-items:flex-end; justify-content:space-between; padding:4px 2px 2px;}
-.cal-num{font-family:"Space Grotesk", sans-serif; font-size:60px; font-weight:700; color:var(--accent); line-height:0.85;}
+.cal-num{font-family:"Radio Canada", sans-serif; font-size:60px; font-weight:700; color:var(--accent); line-height:0.85;}
 .cal-meta{text-align:right; flex:1;}
 .cal-month-row{display:flex; align-items:center; justify-content:flex-end; gap:6px;}
 .cal-arrow{font-size:18px; font-weight:700;}
-.cal-month{font-family:"Space Grotesk", sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; text-align:center;}
+.cal-month{font-family:"Radio Canada", sans-serif; font-size:18px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; text-align:center;}
 .cal-year{color:var(--ink-soft); font-size:13px; text-align:center;}
 .weekday-row{display:grid; grid-template-columns:repeat(7,1fr); gap:6px; text-align:center; font-size:10px; font-weight:700; color:var(--ink-soft); text-transform:uppercase; letter-spacing:0.04em; margin-top:10px;}
 .dot-grid{display:grid; grid-template-columns:repeat(7,1fr); gap:8px; margin-top:8px;}
@@ -206,20 +264,20 @@ button,input,textarea{font-family:inherit;}
 .lc-note{color:var(--ink-soft); font-size:12px; font-style:italic;}
 
 /* Gallery */
-.gallery-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:6px;}
+.gallery-grid{display:grid; grid-template-columns:repeat(2,1fr); gap:18px; margin-top:10px;}
 .slot{
-  aspect-ratio:1; border-radius:50%; background:var(--paper); border:2px dashed var(--line);
+  aspect-ratio:1; border-radius:50%; background:var(--slot-filled); border:none;
   display:flex; align-items:center; justify-content:center; font-size:32px; color:var(--ink-soft);
   cursor:pointer; transition:transform .12s ease; position:relative; overflow:hidden; text-align:center; padding:8px;
 }
 .slot:active{transform:scale(0.94);}
-.slot.add{border-color:var(--accent); color:var(--accent);}
-.slot.filled{border-style:solid; border-color:transparent; color:#fff; font-weight:700; font-family:"Space Grotesk",sans-serif; font-size:13px; line-height:1.3;}
+.slot.add{color:var(--bg); font-weight:300; font-size:44px;}
+.slot.filled{border-style:solid; border-color:transparent; color:#fff; font-weight:700; font-family:"Radio Canada",sans-serif; font-size:13px; line-height:1.3;}
 .slot.card-1{background:var(--card-1);}
 .slot.card-2{background:var(--card-2);}
 .slot.card-3{background:var(--card-3);}
 .slot.card-4{background:var(--card-4); color:var(--card-4-ink);}
-.nav-hint{margin-top:14px; font-size:11px; color:var(--ink-soft); text-align:center;}
+.nav-hint{margin-top:14px; font-size:11px; color:var(--bg); opacity:0.75; text-align:center;}
 
 /* Choice cards */
 .choice-card{
@@ -229,18 +287,60 @@ button,input,textarea{font-family:inherit;}
 }
 .choice-card:active{transform:scale(0.97);}
 .choice-emoji{font-size:34px;}
-.choice-title{font-family:"Space Grotesk", sans-serif; font-weight:700; font-size:17px;}
+.choice-title{font-family:"Radio Canada", sans-serif; font-weight:700; font-size:17px;}
 .choice-sub{color:var(--ink-soft); font-size:13px;}
+
+.generate-shop-screen{background:var(--accent);}
+.generate-shop-screen .topbar .title.title-lg{color:var(--ink);}
+.dark-icon{color:var(--ink);}
+.shop-choice-content{gap:16px;}
+.shop-choice-card{
+  flex:1; border-radius:32px; cursor:pointer; transition:transform .15s ease;
+  display:flex; align-items:center; justify-content:center; text-align:center; padding:20px;
+}
+.shop-choice-card:active{transform:scale(0.97);}
+.shop-choice-card.cream{background:var(--bg); color:var(--ink);}
+.shop-choice-card.lime{background:var(--lime); color:var(--lime-ink);}
+.shop-choice-card span{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:24px; letter-spacing:0.01em;
+  text-transform:uppercase;
+}
 
 /* Generate form */
 .field-label{font-weight:700; font-size:13px; margin-bottom:8px;}
+.field-label.field-label-lg{font-size:19px; font-weight:700; margin-bottom:14px;}
 .small-note{color:var(--ink-soft); font-size:12px; margin-top:6px;}
 .slider-row{display:flex; align-items:center; gap:12px;}
-input[type=range]{flex:1; accent-color:var(--accent);}
 .slider-val{width:36px; height:36px; border-radius:50%; background:var(--ink); color:var(--bg); display:flex; align-items:center; justify-content:center; font-weight:700; font-size:15px; flex-shrink:0;}
+
+/* Fluid days-per-week slider: a native <input type=range> sits invisible
+   on top (for real touch/drag/keyboard handling and accessibility) while a
+   styled track underneath shows a smoothly-animated fill and value pill. */
+.fluid-slider-wrap{position:relative; height:64px;}
+.fluid-slider-track{
+  position:absolute; inset:0; border-radius:18px; background:var(--paper);
+  overflow:hidden; box-shadow:0 1px 0 var(--line) inset;
+}
+.fluid-slider-fill{
+  position:absolute; inset:0 auto 0 0; width:42.86%; background:var(--accent);
+  border-radius:18px; transition:width .18s cubic-bezier(.2,.8,.2,1);
+}
+.fluid-slider-value{
+  position:absolute; top:50%; left:42.86%; transform:translateY(-50%);
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:22px;
+  color:var(--ink); transition:left .18s cubic-bezier(.2,.8,.2,1); pointer-events:none;
+  padding:0 0 0 12px;
+}
+#daysSlider{
+  position:absolute; inset:0; width:100%; height:100%; margin:0;
+  opacity:0; cursor:pointer; appearance:none; -webkit-appearance:none;
+}
+#daysSlider::-webkit-slider-thumb{appearance:none; -webkit-appearance:none; width:64px; height:64px;}
+#daysSlider::-moz-range-thumb{width:64px; height:64px; border:none;}
+
 .level-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
-.level-btn{padding:16px 10px; border-radius:16px; border:1.5px solid var(--line); background:var(--paper); font-weight:700; font-size:13px; cursor:pointer; color:var(--ink); transition:all .12s ease;}
-.level-btn.selected{background:var(--ink); color:var(--bg); border-color:var(--ink);}
+.level-btn{padding:20px 10px; border-radius:18px; border:none; background:var(--level-unselected); color:#fff; font-weight:700; font-size:15px; cursor:pointer; transition:all .12s ease; text-transform:uppercase; letter-spacing:0.01em;}
+.level-btn.selected{background:var(--accent); color:#fff;}
 .level-btn:active{transform:scale(0.96);}
 .level-btn[disabled]{opacity:0.4; cursor:default;}
 
@@ -265,7 +365,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .wallet-card:first-child{margin-top:0;}
 .wallet-card.lift{transform:translateY(-14px); box-shadow:0 -1px 0 rgba(255,255,255,0.14) inset, 0 16px 30px rgba(0,0,0,0.3);}
 .wc-top{display:flex; justify-content:space-between; align-items:flex-start;}
-.wc-name{font-family:"Space Grotesk", sans-serif; font-weight:700; font-size:17px;}
+.wc-name{font-family:"Radio Canada", sans-serif; font-weight:700; font-size:17px;}
 .wc-sub{font-size:12px; opacity:0.75; margin-top:2px;}
 .wc-badge{font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; background:rgba(255,255,255,0.22); padding:4px 9px; border-radius:999px;}
 .wc-arrow{margin-top:14px; font-size:18px;}
@@ -295,16 +395,28 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .ip-avatar{width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,0.25); display:flex; align-items:center; justify-content:center; font-size:20px;}
 .special-hero{text-align:center; display:flex; flex-direction:column; align-items:center; gap:10px; margin-bottom:6px;}
 .special-avatar{width:76px; height:76px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:34px; color:#fff;}
-.special-title{font-family:"Space Grotesk", sans-serif; font-size:20px; font-weight:700;}
+.special-title{font-family:"Radio Canada", sans-serif; font-size:20px; font-weight:700;}
 .special-desc{color:var(--ink-soft); font-size:13px; max-width:280px; line-height:1.5;}
 
 /* Profile view */
-.radar-wrap{display:flex; justify-content:center; margin-top:6px;}
-.profile-meta{display:flex; flex-direction:column; gap:2px;}
-.meta-row{display:flex; justify-content:space-between; font-size:13px; padding:12px 0; border-bottom:1px solid var(--line); gap:12px;}
-.meta-label{color:var(--ink-soft); font-weight:600; flex-shrink:0;}
-.meta-val{font-weight:700; text-align:right;}
-.profile-actions{display:flex; gap:10px; margin-top:16px;}
+.muscle-chip-col{display:flex; flex-direction:column; align-items:flex-start; gap:10px; margin-top:6px;}
+.muscle-chip{
+  background:var(--lime); color:var(--lime-ink); border-radius:14px;
+  padding:14px 18px; font-weight:700; font-size:17px; min-width:80px;
+  transition:width .3s ease;
+}
+.pv-name{
+  font-family:"Radio Canada", sans-serif; font-weight:700; font-size:52px;
+  line-height:1.02; letter-spacing:-0.01em; margin-top:14px;
+}
+.pv-interests{display:flex; flex-wrap:wrap; gap:10px; margin-top:4px;}
+.pill-outline{
+  border:1.5px solid var(--line); border-radius:999px; padding:10px 18px;
+  font-size:14px; font-weight:600; color:var(--ink);
+}
+.profile-meta-hidden{display:none;}
+.profile-actions{display:flex; gap:10px; margin-top:auto;}
+.btn.muted{background:var(--level-unselected); color:#fff;}
 
 /* Admin */
 .admin-row{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--paper); border-radius:12px; padding:12px 14px; margin-top:8px;}
@@ -325,7 +437,7 @@ input[type=range]{flex:1; accent-color:var(--accent);}
 .sheet{width:100%; max-width:520px; background:var(--paper); border-radius:24px 24px 0 0; padding:26px 24px calc(26px + env(safe-area-inset-bottom, 0px)); display:flex; flex-direction:column; gap:14px; animation:sheetup .22s ease;}
 @keyframes sheetup{from{transform:translateY(30px); opacity:0;} to{transform:translateY(0); opacity:1;}}
 .sheet-handle{width:36px; height:4px; border-radius:2px; background:var(--line); margin:0 auto 4px;}
-.sheet h3{font-family:"Space Grotesk", sans-serif; font-size:18px;}
+.sheet h3{font-family:"Radio Canada", sans-serif; font-size:18px;}
 .sheet p{color:var(--ink-soft); font-size:13px; line-height:1.5; margin:0;}
 
 /* Toast */

@@ -495,56 +495,43 @@ function saveEditProfile(){
 }
 
 function renderHome(){
-  document.getElementById('homeGreeting').textContent = 'Hello, ' + (state.profile.name || 'there');
+  const firstName = (state.profile.name || 'there').split(' ')[0];
+  document.getElementById('homeGreeting').textContent = ('Hey, ' + firstName + '.').toUpperCase();
   document.getElementById('homeDayNum').textContent = TODAY.getDate();
-  document.getElementById('homeMonth').textContent = monthNames[TODAY.getMonth()];
-  const isAdmin = fbUser && fbUser.email === ADMIN_EMAIL && !adminImpersonating;
-  document.getElementById('adminEntryBtn').style.display = isAdmin ? '' : 'none';
+  const yy = String(TODAY.getFullYear()).slice(-2);
+  document.getElementById('homeMonth').textContent = (monthNames[TODAY.getMonth()] + " '" + yy).toUpperCase();
 }
 
 function renderProfileView(){
   document.getElementById('pvName').textContent = state.profile.name || '—';
-  document.getElementById('pvInterests').textContent = (state.profile.interests||[]).length ? state.profile.interests.join(', ') : '—';
+  const interests = state.profile.interests || [];
+  const wrap = document.getElementById('pvInterests-wrap');
+  wrap.innerHTML = interests.length
+    ? interests.map(i => `<span class="pill-outline">${escapeHtml(i)}</span>`).join('')
+    : `<span class="pill-outline">—</span>`;
   document.getElementById('pvPacks').textContent = state.packs.length;
   const created = state.createdAt ? new Date(state.createdAt) : new Date();
   document.getElementById('pvMemberSince').textContent = monthNames[created.getMonth()].slice(0,3) + ' ' + created.getFullYear();
-  renderRadar();
+  renderMuscleChips();
 }
 
-function renderRadar(){
+function renderMuscleChips(){
   // Counts logged exercises per muscle group across all calendar workout entries.
+  // Each group's chip width scales with how much it's been trained relative
+  // to the most-trained group, so the row reads as a quick-glance breakdown.
   const counts = {}; MUSCLE_GROUPS.forEach(g => counts[g] = 0);
   Object.values(state.calendarData).forEach(entry => {
     if(entry.type === 'workout' && entry.exercises){
-      entry.exercises.forEach(ex => { if(counts[ex.group] != null) counts[ex.group]++; });
+      entry.exercises.forEach(ex => { if(ex.done && counts[ex.group] != null) counts[ex.group]++; });
     }
   });
   const max = Math.max(1, ...Object.values(counts));
-  const axes = MUSCLE_GROUPS;
-  const cx = 118, cy = 140, r = 70;
-  const angleFor = i => (Math.PI * 2 * i / axes.length) - Math.PI/2;
-  function pt(i, scale){
-    const a = angleFor(i);
-    return [cx + Math.cos(a)*r*scale, cy + Math.sin(a)*r*scale];
-  }
-  let svg = '';
-  [0.33, 0.66, 1].forEach(scale => {
-    const pts = axes.map((g,i) => pt(i,scale).join(',')).join(' ');
-    svg += `<polygon points="${pts}" fill="none" stroke="var(--line)" stroke-width="1"/>`;
-  });
-  axes.forEach((g,i) => {
-    const [x,y] = pt(i,1);
-    svg += `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;
-  });
-  const dataPts = axes.map((g,i) => pt(i, Math.max(0.12, counts[g]/max)).join(',')).join(' ');
-  svg += `<polygon points="${dataPts}" fill="var(--accent)" fill-opacity="0.35" stroke="var(--accent)" stroke-width="2"/>`;
-  axes.forEach((g,i) => {
-    const a = angleFor(i);
-    const lx = cx + Math.cos(a)*(r+30), ly = cy + Math.sin(a)*(r+30);
-    const anchor = Math.cos(a) > 0.3 ? 'start' : (Math.cos(a) < -0.3 ? 'end' : 'middle');
-    svg += `<text x="${lx}" y="${ly}" text-anchor="${anchor}" font-size="10" font-weight="700" fill="var(--ink)">${GROUP_LABEL_EN[g]}</text>`;
-  });
-  document.getElementById('radarSvg').innerHTML = svg;
+  const MIN_PCT = 28; // narrowest chip still reads as a chip, even at 0 count
+  const wrap = document.getElementById('muscleChips');
+  wrap.innerHTML = MUSCLE_GROUPS.map(g => {
+    const pct = Math.round(MIN_PCT + (100 - MIN_PCT) * (counts[g] / max));
+    return `<div class="muscle-chip" style="width:${pct}%">${GROUP_LABEL_EN[g]}</div>`;
+  }).join('');
 }
 
 function openDeleteModal(){ document.getElementById('deleteModal').classList.add('active'); }
@@ -923,8 +910,17 @@ function burstFireOnHome(){
 // Generate form UI wiring
 // ============================================================================
 function onDaysSliderInput(){
-  const days = parseInt(document.getElementById('daysSlider').value, 10);
+  const slider = document.getElementById('daysSlider');
+  const days = parseInt(slider.value, 10);
+  const min = parseInt(slider.min, 10), max = parseInt(slider.max, 10);
   document.getElementById('daysVal').textContent = days;
+  const pct = ((days - min) / (max - min)) * 100;
+  const fill = document.getElementById('fluidSliderFill');
+  if(fill) fill.style.width = pct + '%';
+  const valEl = document.getElementById('daysVal');
+  // Keep the number inside the filled pill, near its trailing edge, rather
+  // than centered on the whole track — reads clearly at every value.
+  if(valEl) valEl.style.left = 'max(0%, calc(' + pct + '% - 42px))';
   const selected = document.querySelector('#levelGrid .level-btn.selected');
   updateLevelGating(days, selected ? selected.dataset.level : 'rookie');
 }
@@ -1141,13 +1137,31 @@ function enterApp(){
 }
 
 function bootIntoApp(){
-  if(!state.profile || !state.profile.name){
-    go('profile-1');
-  } else {
-    go('home');
-  }
   renderAdminBadge();
+  const isAdminUser = fbUser && fbUser.email === ADMIN_EMAIL && !adminImpersonating;
+  go('post-login');
+  const actions = document.getElementById('postLoginActions');
+  if(isAdminUser){
+    // Admin stays on this screen — Enter goes to the app as usual, Admin
+    // jumps straight to the approvals list.
+    actions.style.display = 'flex';
+  } else {
+    // Everyone else sees the same splash as a brief transition, then moves
+    // on automatically after a beat.
+    actions.style.display = 'none';
+    setTimeout(() => {
+      const stillOnSplash = document.getElementById('screen-post-login').classList.contains('active');
+      if(stillOnSplash) postLoginEnter();
+    }, 1000);
+  }
 }
+
+function postLoginContinueTarget(){
+  if(!state.profile || !state.profile.name){ go('profile-1'); }
+  else { go('home'); }
+}
+function postLoginEnter(){ postLoginContinueTarget(); }
+function postLoginAdmin(){ openAdminPanel(); }
 
 function stopApprovalListener(){ if(approvalUnsub){ approvalUnsub(); approvalUnsub = null; } }
 function watchApproval(user){

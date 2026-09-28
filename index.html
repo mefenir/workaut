@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#F2EDE4">
+<meta name="theme-color" content="#FFF6EB">
 <title>Workaut</title>
 <link rel="icon" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/icon-192.png">
 <link rel="manifest" href="manifest.json">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Manrope:wght@500;600;700;800&display=swap">
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -19,9 +17,28 @@
   <!-- LOADING -->
   <div class="screen active" id="screen-loading">
     <div class="content" style="justify-content:center; align-items:center; text-align:center; gap:18px; flex:1;">
-      <div class="logo-mark">🐕</div>
-      <div class="brand">Workaut</div>
+      <img class="loading-mascot" src="img/dog-mascot.png" alt="">
       <div class="spinner"></div>
+    </div>
+  </div>
+
+  <!-- POST-LOGIN SPLASH: brief loading pause for everyone; for the admin
+       account it stays here with ENTER/ADMIN choices instead of auto-advancing -->
+  <div class="screen" id="screen-post-login">
+    <div class="content post-login-content">
+      <div class="wordmark-wrap">
+        <svg class="wordmark-arc" viewBox="0 0 300 170" aria-hidden="true">
+          <path id="wordmarkArcPath" d="M 20 140 A 120 120 0 0 1 230 40" fill="none"/>
+          <text font-size="34">
+            <textPath href="#wordmarkArcPath" startOffset="0">THE WORKAUT</textPath>
+          </text>
+        </svg>
+        <img class="post-login-mascot" src="img/dog-mascot.png" alt="">
+      </div>
+      <div class="post-login-actions" id="postLoginActions" style="display:none;">
+        <button class="btn purple" onclick="postLoginEnter()">ENTER</button>
+        <button class="btn lime" onclick="postLoginAdmin()">ADMIN</button>
+      </div>
     </div>
   </div>
 
@@ -109,21 +126,21 @@
   </div>
 
   <!-- HOME -->
-  <div class="screen" id="screen-home">
-    <div class="topbar">
-      <div class="title">Workaut</div>
-      <div style="width:36px"></div>
+  <div class="screen home-screen" id="screen-home">
+    <div class="home-topbar">
+      <div class="home-greeting" id="homeGreeting">HEY, THERE.</div>
+      <img class="home-mascot" src="img/dog-mascot.png" alt="">
     </div>
-    <div class="content" style="position:relative;">
-      <div class="greeting" id="homeGreeting">Hello, there</div>
-      <div class="home-day" onclick="go('calendar')">
-        <span id="homeDayNum">1</span>
-        <span class="month" id="homeMonth">January</span>
+    <div class="home-cards">
+      <div class="home-card date-card" onclick="go('calendar')">
+        <div class="date-card-num" id="homeDayNum">1</div>
+        <div class="date-card-label" id="homeMonth">JANUARY '26</div>
       </div>
-      <div class="home-actions">
-        <button class="btn dark" onclick="go('gallery')">Workaut</button>
-        <button class="btn outline" onclick="go('profile-view')">Profile</button>
-        <button class="btn outline admin-entry" id="adminEntryBtn" style="display:none;" onclick="openAdminPanel()">🔧 Admin panel</button>
+      <div class="home-card workaut-card" onclick="go('gallery')">
+        <span>WORKAUT</span>
+      </div>
+      <div class="home-card profile-card" onclick="go('profile-view')">
+        <span>PROFILE</span>
       </div>
     </div>
   </div>
@@ -156,11 +173,11 @@
   </div>
 
   <!-- GALLERY -->
-  <div class="screen" id="screen-gallery">
+  <div class="screen generate-shop-screen" id="screen-gallery">
     <div class="topbar">
-      <button class="iconbtn ghost" onclick="go('home')">←</button>
-      <div class="title">Workaut</div>
-      <div style="width:36px"></div>
+      <button class="iconbtn ghost dark-icon" onclick="go('home')">←</button>
+      <div class="title title-lg">Workaut</div>
+      <img class="topbar-mascot" src="img/dog-mascot.png" alt="">
     </div>
     <div class="content">
       <div class="gallery-grid" id="galleryGrid">
@@ -171,22 +188,18 @@
   </div>
 
   <!-- GENERATE / SHOP CHOICE -->
-  <div class="screen" id="screen-generate-shop">
+  <div class="screen generate-shop-screen" id="screen-generate-shop">
     <div class="topbar">
-      <button class="iconbtn ghost" onclick="go('gallery')">←</button>
-      <div class="title">Workaut</div>
-      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+      <button class="iconbtn ghost dark-icon" onclick="go('gallery')">←</button>
+      <div class="title title-lg">Workaut</div>
+      <img class="topbar-mascot" src="img/dog-mascot.png" alt="">
     </div>
-    <div class="content" style="justify-content:center; gap:16px;">
-      <div class="choice-card" onclick="go('generate-form')">
-        <div class="choice-emoji">🎲</div>
-        <div class="choice-title">Generate a workout</div>
-        <div class="choice-sub">Built for you, based on your level</div>
+    <div class="content shop-choice-content">
+      <div class="shop-choice-card cream" onclick="go('generate-form')">
+        <span>Create a Workaut</span>
       </div>
-      <div class="choice-card" onclick="go('specials-gallery')">
-        <div class="choice-emoji">⭐</div>
-        <div class="choice-title">Shop specials</div>
-        <div class="choice-sub">Exclusive packs from creators you follow</div>
+      <div class="shop-choice-card lime" onclick="go('specials-gallery')">
+        <span>Shop specials</span>
       </div>
     </div>
   </div>
@@ -194,33 +207,36 @@
   <!-- GENERATE FORM -->
   <div class="screen" id="screen-generate-form">
     <div class="topbar">
-      <button class="iconbtn ghost" onclick="go('generate-shop')">←</button>
-      <div class="title">Workaut · Generate</div>
-      <button class="iconbtn ghost" onclick="go('home')">⌂</button>
+      <button class="iconbtn ghost dark-icon" onclick="go('generate-shop')">←</button>
+      <div class="title title-lg">Workaut</div>
+      <img class="topbar-mascot" src="img/dog-mascot.png" alt="">
     </div>
     <div class="content">
-      <div>
-        <div class="field-label">How many days per week?</div>
-        <div class="slider-row">
-          <input type="range" min="1" max="7" value="3" id="daysSlider" oninput="onDaysSliderInput()">
-          <div class="slider-val" id="daysVal">3</div>
+      <div style="margin-top:20px;">
+        <div class="field-label field-label-lg">How many days per week?</div>
+        <div class="fluid-slider-wrap">
+          <div class="fluid-slider-track" id="fluidSliderTrack">
+            <div class="fluid-slider-fill" id="fluidSliderFill"></div>
+            <div class="fluid-slider-value" id="daysVal">3</div>
+          </div>
+          <input type="range" min="1" max="7" step="1" value="3" id="daysSlider" oninput="onDaysSliderInput()" aria-label="Days per week">
         </div>
       </div>
       <div>
-        <div class="field-label">What's your level?</div>
+        <div class="field-label field-label-lg">Choose your level</div>
         <div class="level-grid" id="levelGrid">
           <button class="level-btn selected" data-level="rookie" onclick="selectLevel(this)">Rookie</button>
-          <button class="level-btn" data-level="normal" onclick="selectLevel(this)">Normal</button>
-          <button class="level-btn" data-level="advanced" onclick="selectLevel(this)">Expert</button>
-          <button class="level-btn" data-level="god" onclick="selectLevel(this)">God Mode</button>
+          <button class="level-btn" data-level="normal" onclick="selectLevel(this)">Intermediate</button>
+          <button class="level-btn" data-level="advanced" onclick="selectLevel(this)">Advanced</button>
+          <button class="level-btn" data-level="god" onclick="selectLevel(this)">God mode</button>
         </div>
         <div class="small-note" id="levelHint"></div>
       </div>
       <div id="focusGroupField" style="display:none;">
-        <div class="field-label">Specialization focus</div>
+        <div class="field-label field-label-lg">Specialization focus</div>
         <div class="chip-grid" id="focusChipGrid"></div>
       </div>
-      <button class="btn primary" style="margin-top:auto;" onclick="startGenerate()">Generate</button>
+      <button class="btn primary upper" style="margin-top:auto;" onclick="startGenerate()">Create a Workaut</button>
     </div>
   </div>
 
@@ -291,22 +307,19 @@
   <div class="screen" id="screen-profile-view">
     <div class="topbar">
       <button class="iconbtn ghost" onclick="go('home')">←</button>
-      <div class="title">Profile</div>
-      <div style="width:36px"></div>
+      <div class="title title-lg">Profile</div>
+      <img class="topbar-mascot" src="img/dog-mascot.png" alt="">
     </div>
     <div class="content">
-      <div class="radar-wrap">
-        <svg id="radarSvg" width="280" height="280" viewBox="0 0 280 280"></svg>
-      </div>
-      <div class="profile-meta">
-        <div class="meta-row"><span class="meta-label">Name</span><span class="meta-val" id="pvName">—</span></div>
-        <div class="meta-row"><span class="meta-label">Member since</span><span class="meta-val" id="pvMemberSince">—</span></div>
-        <div class="meta-row"><span class="meta-label">Interests</span><span class="meta-val" id="pvInterests">—</span></div>
-        <div class="meta-row"><span class="meta-label">Workaut collection</span><span class="meta-val" id="pvPacks">0</span></div>
+      <div class="muscle-chip-col" id="muscleChips"></div>
+      <div class="pv-name" id="pvName">—</div>
+      <div class="pv-interests" id="pvInterests-wrap"></div>
+      <div class="profile-meta profile-meta-hidden">
+        <span id="pvMemberSince">—</span><span id="pvPacks">0</span>
       </div>
       <div class="profile-actions">
-        <button class="btn outline" onclick="openEditProfile()">Edit</button>
-        <button class="btn danger" onclick="openDeleteModal()">Delete</button>
+        <button class="btn muted" onclick="openEditProfile()">Edit</button>
+        <button class="btn dark" onclick="openDeleteModal()">Delete</button>
       </div>
       <button class="link-btn" style="margin-top:6px;" onclick="authLogout()">Log out</button>
     </div>
