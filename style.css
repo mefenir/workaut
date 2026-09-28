@@ -129,9 +129,8 @@ button,input,textarea{font-family:inherit;}
   position:absolute; left:22px; right:22px; top:56%; transform:translateY(-50%);
   display:flex; flex-direction:column; align-items:flex-end;
 }
-.wordmark-arc{width:100%; max-width:300px; overflow:visible; margin-right:12px;}
-.wordmark-arc text{font-family:"Radio Canada", sans-serif; font-weight:700; fill:var(--ink);}
-.post-login-mascot{width:150px; height:auto; margin-top:-6px;}
+.wordmark-logo{width:78%; max-width:280px; height:auto; align-self:flex-start;}
+.post-login-mascot{width:150px; height:auto; margin-top:-6px; align-self:flex-end;}
 .post-login-actions{
   position:absolute; left:22px; right:22px; bottom:calc(70px + env(safe-area-inset-bottom, 0px));
   display:flex; flex-direction:column; gap:10px;
