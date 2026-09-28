@@ -405,9 +405,11 @@ button,input,textarea{font-family:inherit;}
 /* Profile view — measurements pixel-matched to the reference design (1180x2556
    source), converted to px@430w via value/1180*430: muscle bars height 42px,
    inter-bar gap 3px, bar text inset 11px, bar text 23px; name display font
-   97px with 12px line-gap and 39px top margin off the chips; interest pills
-   2-per-row grid with 27px text, 22px column gap, 6px row gap, 31px top
-   margin; back arrow 35x32px at 28px left inset; PROFILE title 25px. */
+   97px with 12px line-gap and 38px top margin off the chips; interest pills
+   auto-width (padding-driven) row with 27px text, 7px gap, 22px top margin
+   off the name; back arrow 35x32px at 28px left inset; PROFILE title 25px;
+   Edit/Delete row sits 85px below the pills (NOT 31px), buttons 57px tall,
+   7px gap, and NOT an even split — Edit:Delete is ~2.07:1 in the reference. */
 .profile-view .topbar{padding-left:26px; padding-right:26px;}
 .profile-view .icon-arrow{width:35px;}
 .profile-view .content{padding-left:26px; padding-right:26px;}
@@ -421,7 +423,7 @@ button,input,textarea{font-family:inherit;}
 }
 .pv-name{
   font-family:"Radio Canada", sans-serif; font-weight:700; font-size:clamp(56px, 22.6vw, 97px);
-  line-height:0.9; letter-spacing:-0.02em; margin-top:39px;
+  line-height:0.9; letter-spacing:-0.02em; margin-top:38px;
   word-break:normal; overflow-wrap:normal; white-space:normal;
 }
 /* Interest pills: auto-width (padding-driven, not a fixed grid column), so a
@@ -429,7 +431,7 @@ button,input,textarea{font-family:inherit;}
    box widths — measured from the reference: pill height 45px@430w, 25.5px
    horizontal padding each side, ~7px gap both directions, wraps to new rows. */
 .pv-interests{
-  display:flex; flex-wrap:wrap; gap:7px; margin-top:31px;
+  display:flex; flex-wrap:wrap; gap:7px; margin-top:22px;
 }
 .pill-outline{
   border:1.5px solid var(--ink); border-radius:999px; padding:11px 25.5px;
@@ -439,8 +441,14 @@ button,input,textarea{font-family:inherit;}
   white-space:nowrap; flex:0 0 auto;
 }
 .profile-meta-hidden{display:none;}
-.profile-actions{display:flex; gap:7px; margin-top:31px;}
-.profile-actions .btn{height:58px; border-radius:18px;}
+/* Edit/Delete row: measured gap from pills is ~85px, not 31px, and the two
+   buttons are NOT an even split — Edit:Delete width ratio is ~679:328 (2.07:1)
+   in the reference, so give them proportional flex-grow instead of flex:1 1 0
+   each (which the shared .btn{width:100%} would otherwise produce evenly). */
+.profile-actions{display:flex; gap:7px; margin-top:85px;}
+.profile-actions .btn{height:57px; border-radius:18px; width:auto;}
+.profile-actions .btn.muted{flex:2.07 1 0;}
+.profile-actions .btn.dark{flex:1 1 0;}
 .btn.muted{background:var(--level-unselected); color:#fff;}
 
 /* Admin */
